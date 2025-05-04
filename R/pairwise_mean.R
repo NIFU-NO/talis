@@ -22,6 +22,14 @@
 #' @export
 pairwise_mean <- function(data, svy, outcome, group, p_adjust = "holm", as_gt = FALSE) {
 
+  # Pakkesjekker
+  if (!requireNamespace("survey", quietly = TRUE)) stop("Du må installere pakken 'survey'.")
+  if (as_gt && !requireNamespace("gt", quietly = TRUE)) stop("Du må installere pakken 'gt' for å bruke as_gt = TRUE.")
+  if (!requireNamespace("dplyr", quietly = TRUE)) stop("Du må installere pakken 'dplyr'.")
+  if (!requireNamespace("tibble", quietly = TRUE)) stop("Du må installere pakken 'tibble'.")
+  if (!requireNamespace("purrr", quietly = TRUE)) stop("Du må installere pakken 'purrr'.")
+  if (!requireNamespace("stringr", quietly = TRUE)) stop("Du må installere pakken 'stringr'.")
+
   if (!group %in% names(data) || !outcome %in% names(data)) {
     stop("Variablene finnes ikke i datasettet.")
   }
@@ -57,6 +65,9 @@ pairwise_mean <- function(data, svy, outcome, group, p_adjust = "holm", as_gt = 
   coef_names <- names(coefs)
   mf <- model.frame(mod)
   factor_levels <- levels(mf[[group]])
+
+  if (length(factor_levels) < 2) stop("Variabelen group må ha minst to nivåer.")
+
   ref_level <- factor_levels[1]
   combs <- combn(factor_levels, 2, simplify = FALSE)
 
@@ -90,12 +101,17 @@ pairwise_mean <- function(data, svy, outcome, group, p_adjust = "holm", as_gt = 
 
   if (p_adjust != "none") {
     if (!p_adjust %in% p.adjust.methods) stop("Ugyldig metode for p-justering.")
-    results <- results %>% mutate(p_adj = p.adjust(p, method = p_adjust))
+    results <- results %>% dplyr::mutate(p_adj = p.adjust(p, method = p_adjust))
   }
 
   if (as_gt) {
-    y_label <- attributes(data[[outcome]])$label %||% outcome
-    results <- results %>% select(-se, -t)  # Fjern SE og t-verdi fra visning
+    y_label <- attr(data[[outcome]], "label")
+    if (is.null(y_label)) {
+      message("Merk: outcome-variabelen mangler 'label'-attributt. Bruker variabelnavnet som etikett.")
+      y_label <- outcome
+    }
+
+    results <- results %>% dplyr::select(-se, -t)  # Fjern SE og t-verdi fra visning
     gt_tab <- gt::gt(results) %>%
       gt::tab_spanner(label = paste0("Gjennomsnitt av ", y_label), columns = c(est, ci_low, ci_high, p, p_adj)) %>%
       gt::fmt_number(columns = c(est, ci_low, ci_high), decimals = 2) %>%
