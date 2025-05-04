@@ -28,21 +28,41 @@ cross_table <- function(data,
                         row_label = NULL,
                         col_label = NULL) {
 
+  # Pakkesjekker
+  if (!requireNamespace("survey", quietly = TRUE)) stop("Du må installere pakken 'survey'.")
+  if (!requireNamespace("dplyr", quietly = TRUE)) stop("Du må installere pakken 'dplyr'.")
+  if (!requireNamespace("tibble", quietly = TRUE)) stop("Du må installere pakken 'tibble'.")
+  if (!requireNamespace("gt", quietly = TRUE) && as_gt) stop("Du må installere pakken 'gt'.")
+  if (!requireNamespace("ggplot2", quietly = TRUE) && plot) stop("Du må installere pakken 'ggplot2'.")
+  if (!requireNamespace("stringr", quietly = TRUE)) stop("Du må installere pakken 'stringr'.")
+
   prosent <- match.arg(prosent)
 
-  # Valider input
+  if (plot && as_gt) {
+    warning("Både plot = TRUE og as_gt = TRUE er spesifisert. Returnerer kun plottet.")
+  }
+
   if (!row_var %in% names(data) || !col_var %in% names(data)) {
     stop("Variablene finnes ikke i datasettet.")
   }
+
   if (!svy %in% c("TALISEC_STAFF", "TALISEC_LEADER")) {
     stop("Ugyldig survey-type.")
   }
 
-  # Hent etiketter
-  row_label <- row_label %||% attributes(data[[row_var]])$label %||% row_var
-  col_label <- col_label %||% attributes(data[[col_var]])$label %||% col_var
+  # Etiketter
+  row_label <- row_label %||% attr(data[[row_var]], "label")
+  col_label <- col_label %||% attr(data[[col_var]], "label")
+  if (is.null(row_label)) {
+    message("Merk: row_var mangler 'label'-attributt. Bruker variabelnavnet.")
+    row_label <- row_var
+  }
+  if (is.null(col_label)) {
+    message("Merk: col_var mangler 'label'-attributt. Bruker variabelnavnet.")
+    col_label <- col_var
+  }
 
-  # Velg riktige vekter og repvekter basert på survey-type
+  # Vekter og repvekter
   if (svy == "TALISEC_STAFF") {
     rep_col <- grep("^srwgt", names(data), value = TRUE)
     weight_var <- ~staffwgt
@@ -51,16 +71,12 @@ cross_table <- function(data,
     weight_var <- ~cntrwgt
   }
 
-  # Fjern tomme repvekter
   valid_rep_col <- rep_col[colSums(!is.na(data[rep_col])) > 0]
 
-  # Lag datasett for design
-  relevant_vars <- c(row_var, col_var, all.vars(weight_var), valid_rep_col)
   data_design <- data %>%
-    dplyr::select(all_of(relevant_vars)) %>%
+    dplyr::select(all_of(c(row_var, col_var, all.vars(weight_var), valid_rep_col))) %>%
     dplyr::mutate(across(where(is.factor), droplevels))
 
-  # Lag designobjekt
   design <- survey::svrepdesign(
     weights = weight_var,
     repweights = data_design %>% dplyr::select(all_of(valid_rep_col)),
@@ -71,7 +87,6 @@ cross_table <- function(data,
     data = data_design
   )
 
-  # Lag tabell
   t <- survey::svytable(as.formula(paste("~", row_var, "+", col_var)), design)
 
   if (prosent != "nei") {
@@ -82,10 +97,9 @@ cross_table <- function(data,
     t <- prop.table(t, margin = margin) * 100
   }
 
-  tabell <- as.data.frame.matrix(t)
-  tabell <- tibble::rownames_to_column(tabell, var = "_row")
+  tabell <- as.data.frame.matrix(t) %>%
+    tibble::rownames_to_column(var = "_row")
 
-  # Statistisk test
   test_result <- NULL
   if (test) {
     test_result <- tryCatch({
@@ -96,41 +110,37 @@ cross_table <- function(data,
     })
   }
 
-  # Plott
   if (plot) {
     plot_data <- as.data.frame(t) %>%
       dplyr::rename(value = Freq) %>%
       dplyr::mutate(across(c(1, 2), as.factor))
 
-    p <- ggplot(plot_data, aes_string(x = row_var, y = "value", fill = col_var)) +
-      geom_col(position = "stack") +
-      labs(
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes_string(x = row_var, y = "value", fill = col_var)) +
+      ggplot2::geom_col(position = "stack") +
+      ggplot2::labs(
         y = ifelse(prosent == "nei", "Antall", "Prosent"),
         x = NULL,
         title = stringr::str_wrap(paste0(row_label, " × ", col_label), width = 60)
       ) +
-      guides(fill = guide_legend(title = NULL, reverse = TRUE)) +
-      theme_minimal() +
-      theme(legend.position = "bottom")
+      ggplot2::guides(fill = ggplot2::guide_legend(title = NULL, reverse = TRUE)) +
+      ggplot2::theme_minimal() +
+      ggplot2::theme(legend.position = "bottom")
 
     if (length(levels(plot_data[[row_var]])) > 5) {
-      p <- p + coord_flip()
+      p <- p + ggplot2::coord_flip()
     }
 
     if (!is.null(test_result)) {
-      cat(paste0("Rao-Scott p-verdi: ", round(test_result$p.value, 3), "\n"))
+      message("Rao-Scott p-verdi: ", round(test_result$p.value, 3))
     }
 
     return(p)
   }
 
-  # GT-tabell
   if (as_gt) {
     gt_tab <- gt::gt(tabell, rowname_col = "_row") %>%
       gt::fmt_number(decimals = 1) %>%
-      gt::tab_header(
-        title = paste0("Krysstabell: ", row_label, " × ", col_label)
-      )
+      gt::tab_header(title = paste0("Krysstabell: ", row_label, " × ", col_label))
 
     if (!is.null(test_result)) {
       test_text <- paste0("Rao-Scott test: F = ", round(test_result$statistic, 2),
