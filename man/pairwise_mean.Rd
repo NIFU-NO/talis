@@ -27,6 +27,7 @@ Sammenlikner gjennomsnitt for en kontinuerlig variabel mellom alle par av gruppe
 med støtte for p-justering og output som \code{gt}-tabell.
 }
 \examples{
+\dontrun{
 # Parvise sammenlikninger av trivsel etter eierform
 pairwise_mean(data = data_02_ansatt, svy = "TALISEC_STAFF",
               outcome = "ss2g02", group = "eierform")
@@ -34,4 +35,5 @@ pairwise_mean(data = data_02_ansatt, svy = "TALISEC_STAFF",
 # Som `gt`-tabell med p-justering
 pairwise_mean(data = data_02_ansatt, svy = "TALISEC_STAFF",
               outcome = "ss2g02", group = "eierform", p_adjust = "bonferroni", as_gt = TRUE)
+}
 }

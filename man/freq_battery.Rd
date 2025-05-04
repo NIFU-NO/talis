@@ -47,6 +47,7 @@ Tabellene lages ved hjelp av \code{Rrepest} og kan returneres som \code{gt}-tabe
 Prefiks hentes vanligvis fra variabelnavn som \code{q_29}, og funksjonen forsøker å hente batterinavn fra variablenes \code{label}.
 }
 \examples{
+\dontrun{
 # Enkel frekvenstabell for spørsmål med prefix q_29
 freq_battery(data = data_02_leder, svy = "TALISEC_LEADER", battery_prefix = "q_29")
 
@@ -54,5 +55,7 @@ freq_battery(data = data_02_leder, svy = "TALISEC_LEADER", battery_prefix = "q_2
 freq_battery(data = data_02_leder, svy = "TALISEC_LEADER", battery_prefix = "q_29", plot = TRUE)
 
 # Returner som bred tabell
-tabell <- freq_battery(data = data_02_leder, svy = "TALISEC_LEADER", battery_prefix = "q_29", return_data = "tabell")
+tabell <- freq_battery(data = data_02_leder, svy = "TALISEC_LEADER",
+                       battery_prefix = "q_29", return_data = "tabell")
+}
 }

@@ -6,7 +6,8 @@
 #' `gt`-tabell, figur (`ggplot2`) eller rådata.
 #'
 #' @importFrom Rrepest Rrepest est
-#' @importFrom dplyr across arrange mutate rename select
+#' @importFrom dplyr across arrange mutate rename select %>% sym desc everything starts_with
+#' @importFrom data.table :=
 #' @importFrom ggplot2 aes coord_flip facet_wrap geom_col geom_errorbar ggplot labs scale_x_discrete theme_minimal vars
 #' @importFrom gt cols_label gt tab_options
 #' @importFrom stringr str_wrap

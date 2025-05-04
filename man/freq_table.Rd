@@ -54,6 +54,7 @@ Resultatene beregnes med replikasjonsvekter via \code{Rrepest}, og kan vises som
 \code{gt}-tabell, figur (\code{ggplot2}) eller rådata.
 }
 \examples{
+\dontrun{
 # Frekvenstabell uten gruppering
 freq_table(data = data_02_ansatt, svy = "TALISEC_STAFF", variabel = "gender")
 
@@ -62,4 +63,5 @@ freq_table(data = data_02_ansatt, svy = "TALISEC_STAFF", variabel = "gender", by
 
 # Returner som figur
 freq_table(data = data_02_ansatt, svy = "TALISEC_STAFF", variabel = "gender", plot = TRUE)
+}
 }

@@ -4,7 +4,7 @@
 #' Sammenlikner gjennomsnitt for en kontinuerlig variabel mellom alle par av grupper,
 #' med støtte for p-justering og output som `gt`-tabell.
 #'
-#' @importFrom dplyr mutate select
+#' @importFrom dplyr mutate select %>%
 #' @importFrom gt cols_align cols_label fmt fmt_number gt tab_source_note tab_spanner
 #' @importFrom purrr map_dfr
 #' @importFrom stats as.formula coef df.residual model.frame p.adjust p.adjust.methods pt qt setNames

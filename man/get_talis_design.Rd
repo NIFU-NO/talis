@@ -19,9 +19,11 @@ Lager et \code{svrep.design}-objekt med replikasjonsvekter, tilpasset enten lede
 Brukes internt i andre funksjoner for å lage gyldig surveydesign med riktige vekter.
 }
 \examples{
+\dontrun{
 # Lag survey-design for ansattdata
 design <- get_talis_design(data = data_02_ansatt, svy = "TALISEC_STAFF")
 
 # Deretter kan du bruke survey-funksjoner:
 # svymean(~ss2g02, design)
+}
 }

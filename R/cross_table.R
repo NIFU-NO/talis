@@ -4,7 +4,7 @@
 #' Lager en krysstabell for to kategoriske variabler, med mulighet for prosentvis fordeling,
 #' statistisk test og ulike outputformater (tabell, `gt` eller `ggplot2`).
 #'
-#' @importFrom dplyr across all_of mutate select where
+#' @importFrom dplyr across all_of mutate select where %>%
 #' @importFrom ggplot2 aes_string coord_flip geom_col ggplot guides labs theme_minimal
 #' @importFrom gt fmt_number gt tab_header tab_source_note
 #' @importFrom stringr str_wrap
@@ -29,14 +29,17 @@
 #' @examples
 #' # Krysstabell med antall
 #' \dontrun{
-#' cross_table(data = data_02_ansatt, svy = "TALISEC_STAFF", row_var = "gender", col_var = "eierform")
+#' cross_table(data = data_02_ansatt, svy = "TALISEC_STAFF",
+#'              row_var = "gender", col_var = "eierform")
 #'
 #' # Krysstabell med prosentvis fordeling og gt-tabell
-#' cross_table(data = data_02_ansatt, svy = "TALISEC_STAFF", row_var = "gender", col_var = "eierform",
+#' cross_table(data = data_02_ansatt, svy = "TALISEC_STAFF",
+#'             row_var = "gender", col_var = "eierform",
 #'             prosent = "rad", as_gt = TRUE)
 #'
 #' # Plottet krysstabell
-#' cross_table(data = data_02_ansatt, svy = "TALISEC_STAFF", row_var = "gender", col_var = "eierform",
+#' cross_table(data = data_02_ansatt, svy = "TALISEC_STAFF",
+#'             row_var = "gender", col_var = "eierform",
 #'             prosent = "kolonne", plot = TRUE)
 #' }
 cross_table <- function(data,

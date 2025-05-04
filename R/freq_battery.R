@@ -41,7 +41,8 @@
 #' freq_battery(data = data_02_leder, svy = "TALISEC_LEADER", battery_prefix = "q_29", plot = TRUE)
 #'
 #' # Returner som bred tabell
-#' tabell <- freq_battery(data = data_02_leder, svy = "TALISEC_LEADER", battery_prefix = "q_29", return_data = "tabell")
+#' tabell <- freq_battery(data = data_02_leder, svy = "TALISEC_LEADER",
+#'                        battery_prefix = "q_29", return_data = "tabell")
 #' }
 freq_battery <- function(data,
                          svy,

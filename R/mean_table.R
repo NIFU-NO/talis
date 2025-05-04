@@ -6,7 +6,7 @@
 #' `gt`-tabell, figur (`ggplot2`) eller returneres som Rrepest-objekt.
 #'
 #' @importFrom Rrepest Rrepest est
-#' @importFrom dplyr across arrange mutate relocate rename select
+#' @importFrom dplyr across arrange mutate relocate rename select %>% sym desc everything starts_with
 #' @importFrom ggplot2 aes coord_flip geom_col geom_errorbar ggplot labs theme_minimal
 #' @importFrom gt gt tab_spanner
 #' @importFrom stringr str_wrap

@@ -53,6 +53,7 @@ Resultatene beregnes med replikasjonsvekter via \code{Rrepest}, og kan vises som
 \code{gt}-tabell, figur (\code{ggplot2}) eller returneres som Rrepest-objekt.
 }
 \examples{
+\dontrun{
 # Gjennomsnitt uten gruppering
 mean_table(data = data_02_ansatt, svy = "TALISEC_STAFF", variabel = "ss2g02")
 
@@ -63,4 +64,5 @@ mean_table(data = data_02_ansatt, svy = "TALISEC_STAFF", variabel = "ss2g02",
 # Returner som figur
 mean_table(data = data_02_ansatt, svy = "TALISEC_STAFF", variabel = "ss2g02",
            by = "eierform", plot = TRUE)
+}
 }

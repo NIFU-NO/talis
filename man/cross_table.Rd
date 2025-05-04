@@ -50,13 +50,18 @@ statistisk test og ulike outputformater (tabell, \code{gt} eller \code{ggplot2})
 }
 \examples{
 # Krysstabell med antall
-cross_table(data = data_02_ansatt, svy = "TALISEC_STAFF", row_var = "gender", col_var = "eierform")
+\dontrun{
+cross_table(data = data_02_ansatt, svy = "TALISEC_STAFF",
+             row_var = "gender", col_var = "eierform")
 
 # Krysstabell med prosentvis fordeling og gt-tabell
-cross_table(data = data_02_ansatt, svy = "TALISEC_STAFF", row_var = "gender", col_var = "eierform",
+cross_table(data = data_02_ansatt, svy = "TALISEC_STAFF",
+            row_var = "gender", col_var = "eierform",
             prosent = "rad", as_gt = TRUE)
 
 # Plottet krysstabell
-cross_table(data = data_02_ansatt, svy = "TALISEC_STAFF", row_var = "gender", col_var = "eierform",
+cross_table(data = data_02_ansatt, svy = "TALISEC_STAFF",
+            row_var = "gender", col_var = "eierform",
             prosent = "kolonne", plot = TRUE)
+}
 }
