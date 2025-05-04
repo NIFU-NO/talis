@@ -16,32 +16,66 @@ knitr::opts_chunk$set(
 # talis
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 Intern R-pakke for analyse av de norske TALIS Starting Strong-dataene.
 
 Pakken inneholder funksjoner for å:
-- Beregne prosentfordelinger og gjennomsnitt med replikasjonsvekter (via `Rrepest`)
-- Lage tabeller med `gt` og figurer med `ggplot2`
-- Forenkle arbeid med komplekse survey-design
-- Standardisere databehandling på tvers av brukere
+
+-    Beregne prosentfordelinger og gjennomsnitt med replikasjonsvekter (via `Rrepest`)
+
+-    Lage tabeller med `gt` og figurer med `ggplot2`
+
+-    Forenkle arbeid med komplekse survey-design
+
+-    Standardisere databehandling på tvers av brukere
 
 ## Installation
 
-Dette er et **privat GitHub-repo**. Du må ha tilgang for å installere det.
+Repoet er offentlig, og du kan installere pakken slik:
 
-```r
+``` r
 # Installer devtools hvis du ikke har det fra før
 install.packages("devtools")
 
-# Installer pakken fra GitHub (hvis du har tilgang)
+# Installer pakken fra GitHub
 devtools::install_github("NIFU-NO/talis")
 ```
 
 ## Example
 
+
+```{r}
 library(talis)
 
-# Eksempel på frekvenstabell
-freq_table(data, variabel = "kjonn", group = "eierform")
+# Eksempel 1: Frekvenstabell
+freq_table(
+  data = data_02_ansatt,
+  svy = "TALISEC_STAFF",
+  variabel = "kjonn",
+  by = "eierform"
+)
+
+# Eksempel 2: Gjennomsnitt med konfidensintervall
+mean_table(
+  data = data_02_ansatt,
+  svy = "TALISEC_STAFF",
+  variabel = "ss2g02",
+  by = "staff_role",
+  ci = TRUE,
+  as_gt = TRUE
+)
+
+# Eksempel 3: Parvise sammenligninger av grupper
+pairwise_mean(
+  data = data_02_ansatt,
+  svy = "TALISEC_STAFF",
+  outcome = "ss2g02",
+  group = "staff_role",
+  p_adjust = "holm",
+  as_gt = TRUE
+)
+
+```
 
