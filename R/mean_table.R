@@ -3,6 +3,13 @@
 #'
 #' Beregner gjennomsnitt og usikkerhet for en variabel, med støtte for grupper, plot, og konfidensintervall.
 #'
+#' @importFrom Rrepest Rrepest est
+#' @importFrom dplyr across arrange mutate relocate rename select
+#' @importFrom ggplot2 aes coord_flip geom_col geom_errorbar ggplot labs theme_minimal
+#' @importFrom gt gt tab_spanner
+#' @importFrom stringr str_wrap
+#' @importFrom tidyr pivot_longer pivot_wider separate
+#'
 #' @param data Datasettet som skal brukes
 #' @param svy Survey-type: "TALISEC_LEADER" eller "TALISEC_STAFF"
 #' @param variabel Variabelnavn (tekst, f.eks. "ss2g02")

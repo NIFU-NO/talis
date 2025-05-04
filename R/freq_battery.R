@@ -3,6 +3,15 @@
 #'
 #' Lager en frekvenstabell for alle variabler som starter med et gitt prefix.
 #'
+#' @importFrom Rrepest Rrepest est
+#' @importFrom dplyr distinct left_join mutate rename_with select
+#' @importFrom forcats fct_rev
+#' @importFrom ggplot2 aes geom_col ggplot guides labs scale_fill_brewer theme_minimal
+#' @importFrom gt cells_body cols_label fmt_number gt tab_spanner tab_style
+#' @importFrom purrr map_dfr
+#' @importFrom stringr str_match str_remove
+#' @importFrom tidyr pivot_longer pivot_wider
+#'
 #' @param data Datasettet som skal brukes
 #' @param svy Survey-type: "TALISEC_LEADER" eller "TALISEC_STAFF"
 #' @param battery_prefix Prefiks for variablene i batteriet (f.eks. "q_29")

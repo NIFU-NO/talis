@@ -3,6 +3,9 @@
 #'
 #' Lager et survey design-objekt med replikasjonsvekter for bruk med survey-pakken.
 #'
+#' @importFrom dplyr across all_of mutate select where
+#' @importFrom survey svrepdesign
+#'
 #' @param data Datasett som inneholder riktige vektvariabler og replikasjonsvekter
 #' @param svy Survey-type: "TALISEC_STAFF" eller "TALISEC_LEADER"
 #'

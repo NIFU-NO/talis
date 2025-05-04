@@ -3,6 +3,13 @@
 #'
 #' Lager en frekvenstabell med usikkerhet, med opsjon for tabell, plot eller rådata.
 #'
+#' @importFrom Rrepest Rrepest est
+#' @importFrom dplyr across arrange mutate rename select
+#' @importFrom ggplot2 aes coord_flip facet_wrap geom_col geom_errorbar ggplot labs scale_x_discrete theme_minimal vars
+#' @importFrom gt cols_label gt tab_options
+#' @importFrom stringr str_wrap
+#' @importFrom tidyr pivot_longer pivot_wider separate
+#'
 #' @param data Datasettet som skal brukes
 #' @param svy Survey-type: "TALISEC_LEADER" eller "TALISEC_STAFF"
 #' @param variabel Variabelnavn som skal summeres (som tekst, f.eks. "gender")

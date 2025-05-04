@@ -3,6 +3,14 @@
 #'
 #' Estimerer gjennomsnitt for en kontinuerlig variabel innenfor grupper, og tester parvise forskjeller
 #'
+#' @importFrom dplyr mutate select
+#' @importFrom gt cols_align cols_label fmt fmt_number gt tab_source_note tab_spanner
+#' @importFrom purrr map_dfr
+#' @importFrom stats as.formula coef df.residual model.frame p.adjust p.adjust.methods pt qt setNames
+#' @importFrom survey svrepdesign svycontrast svyglm
+#' @importFrom tibble tibble
+#' @importFrom utils combn
+#'
 #' @param data Datasettet som skal brukes
 #' @param svy Survey-type: "TALISEC_LEADER" eller "TALISEC_STAFF"
 #' @param outcome Den kontinuerlige variabelen vi sammenlikner (tekst)

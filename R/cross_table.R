@@ -3,6 +3,13 @@
 #'
 #' Lager en krysstabell (prosent eller antall) med opsjon for test, tabell og plott.
 #'
+#' @importFrom dplyr select mutate across where all_of
+#' @importFrom tibble rownames_to_column
+#' @importFrom ggplot2 ggplot aes_string geom_col labs theme_minimal coord_flip guides
+#' @importFrom stringr str_wrap
+#' @importFrom survey svrepdesign svytable svychisq
+#' @importFrom gt gt fmt_number tab_header tab_source_note
+#'
 #' @param data Datasettet som skal brukes
 #' @param svy Survey-type: "TALISEC_LEADER" eller "TALISEC_STAFF"
 #' @param row_var Raden i tabellen (tekst)
