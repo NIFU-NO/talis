@@ -3,5 +3,6 @@
 export(cross_table)
 export(freq_battery)
 export(freq_table)
+export(get_talis_design)
 export(mean_table)
 export(pairwise_mean)
