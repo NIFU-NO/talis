@@ -46,7 +46,7 @@ devtools::install_github("NIFU-NO/talis")
 ## Example
 
 
-```{r}
+```{r, eval=FALSE}
 library(talis)
 
 # Eksempel 1: Frekvenstabell
