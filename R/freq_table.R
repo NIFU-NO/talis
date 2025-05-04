@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 #' Frekvenstabell med replikasjonsvekter
 #'
 #' Lager en frekvenstabell med usikkerhet, med opsjon for tabell, plot eller rådata.

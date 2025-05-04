@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 #' Frekvenstabell for spørsmålsbatterier
 #'
 #' Lager en frekvenstabell for alle variabler som starter med et gitt prefix.

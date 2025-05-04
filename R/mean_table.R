@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 #' Gjennomsnittstabell med replikasjonsvekter
 #'
 #' Beregner gjennomsnitt og usikkerhet for en variabel, med støtte for grupper, plot, og konfidensintervall.

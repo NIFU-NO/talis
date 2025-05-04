@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 #' Parvise sammenlikninger av gjennomsnitt (survey design)
 #'
 #' Estimerer gjennomsnitt for en kontinuerlig variabel innenfor grupper, og tester parvise forskjeller

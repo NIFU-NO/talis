@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 #' Returnerer survey design for TALIS Starting Strong
 #'
 #' Lager et survey design-objekt med replikasjonsvekter for bruk med survey-pakken.

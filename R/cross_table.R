@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 #' Krysstabell med replikasjonsvekter
 #'
 #' Lager en krysstabell (prosent eller antall) med opsjon for test, tabell og plott.
