@@ -20,6 +20,13 @@ freq_battery <- function(data,
                          plot = FALSE,
                          return_data = c("none", "tabell", "rrepest")) {
 
+  if (!requireNamespace("Rrepest", quietly = TRUE)) stop("Du må installere pakken 'Rrepest'.")
+  if (as_gt && !requireNamespace("gt", quietly = TRUE)) stop("Du må installere pakken 'gt' for å bruke as_gt = TRUE.")
+  if (plot && !requireNamespace("ggplot2", quietly = TRUE)) stop("Du må installere pakken 'ggplot2' for å bruke plot = TRUE.")
+  if (!requireNamespace("stringr", quietly = TRUE)) stop("Du må installere pakken 'stringr'.")
+  if (!requireNamespace("purrr", quietly = TRUE)) stop("Du må installere pakken 'purrr'.")
+  if (!requireNamespace("forcats", quietly = TRUE)) stop("Du må installere pakken 'forcats'.")
+
   return_data <- match.arg(return_data)
 
   if (!svy %in% c("TALISEC_LEADER", "TALISEC_STAFF")) stop("Ugyldig survey-type.")
@@ -27,14 +34,25 @@ freq_battery <- function(data,
   battery_vars <- names(data)[startsWith(names(data), battery_prefix)]
   if (length(battery_vars) == 0) stop("Ingen variabler funnet med angitt prefix.")
 
-  full_label <- attributes(data[[battery_vars[1]]])$label %||% battery_prefix
-  split_label <- stringr::str_match(full_label, "^(.*?)/")
-  battery_label <- if (!is.na(split_label[1, 2])) split_label[1, 2] else full_label
+  battery_label_raw <- attr(data[[battery_vars[1]]], "label")
+  if (is.null(battery_label_raw)) {
+    message("Merk: Første variabel i batteriet mangler 'label'-attributt. Prefix-navn brukes som batterinavn.")
+    battery_label_raw <- battery_prefix
+  }
+  split_label <- stringr::str_match(battery_label_raw, "^(.*?)/")
+  battery_label <- if (!is.na(split_label[1, 2])) split_label[1, 2] else battery_label_raw
 
-  # Lagre Rrepest-resultater dersom ønsket
+  # Advarsel hvis flere outputtyper er valgt samtidig
+  n_outputs <- sum(plot, as_gt, return_data != "none")
+  if (n_outputs > 1) {
+    warning("Flere output-alternativer er spesifisert (plot, as_gt, return_data). Bare én vil bli brukt, i prioritert rekkefølge: plot > as_gt > return_data.")
+  }
+
   rrepest_list <- list()
 
   process_column <- function(var) {
+    if (all(is.na(data[[var]]))) return(NULL)
+
     result <- Rrepest::Rrepest(
       data = data,
       svy = svy,
@@ -46,13 +64,13 @@ freq_battery <- function(data,
       rrepest_list[[var]] <<- result
     }
 
-    label <- attributes(data[[var]])$label %||% var
-    short_label <- stringr::str_remove(label, ".*/\\ ") %||% label
+    label <- attr(data[[var]], "label") %||% var
+    short_label <- stringr::str_remove(label, ".*/\\s*") %||% label
     n <- sum(!is.na(data[[var]]))
 
-    result <- result %>%
+    result %>%
       select(starts_with("b.")) %>%
-      rename_with(~ str_replace(., paste0("b\\.", var, "\\."), "")) %>%
+      rename_with(~ stringr::str_replace(., paste0("b\\.", var, "\\."), "")) %>%
       pivot_longer(everything(), names_to = "kategori", values_to = "Andel") %>%
       mutate(variabel = short_label, n = n)
   }
@@ -88,14 +106,14 @@ freq_battery <- function(data,
   }
 
   if (plot) {
-    tabell$variabel <- fct_rev(factor(tabell$variabel, levels = unique(tabell_wide$variabel)))
-    p <- ggplot(tabell, aes(x = Andel, y = variabel, fill = kategori)) +
-      geom_col(position = "stack") +
-      scale_fill_brewer(palette = "Set2") +
-      labs(x = "Prosent", y = NULL, fill = NULL, title = battery_label) +
-      guides(fill = guide_legend(reverse = TRUE)) +
-      theme_minimal() +
-      theme(legend.position = "bottom")
+    tabell$variabel <- forcats::fct_rev(factor(tabell$variabel, levels = unique(tabell_wide$variabel)))
+    p <- ggplot2::ggplot(tabell, ggplot2::aes(x = Andel, y = variabel, fill = kategori)) +
+      ggplot2::geom_col(position = "stack") +
+      ggplot2::scale_fill_brewer(palette = "Set2") +
+      ggplot2::labs(x = "Prosent", y = NULL, fill = NULL, title = battery_label) +
+      ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE)) +
+      ggplot2::theme_minimal() +
+      ggplot2::theme(legend.position = "bottom")
     return(p)
   }
 
