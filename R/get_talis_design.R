@@ -14,11 +14,13 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Lag survey-design for ansattdata
 #' design <- get_talis_design(data = data_02_ansatt, svy = "TALISEC_STAFF")
 #'
 #' # Deretter kan du bruke survey-funksjoner:
 #' # svymean(~ss2g02, design)
+#' }
 get_talis_design <- function(data, svy) {
   if (!requireNamespace("survey", quietly = TRUE)) stop("Du må installere pakken 'survey'.")
 

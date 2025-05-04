@@ -29,6 +29,7 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Gjennomsnitt uten gruppering
 #' mean_table(data = data_02_ansatt, svy = "TALISEC_STAFF", variabel = "ss2g02")
 #'
@@ -39,6 +40,7 @@
 #' # Returner som figur
 #' mean_table(data = data_02_ansatt, svy = "TALISEC_STAFF", variabel = "ss2g02",
 #'            by = "eierform", plot = TRUE)
+#' }
 mean_table <- function(data,
                        svy,
                        variabel,

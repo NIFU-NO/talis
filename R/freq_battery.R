@@ -33,6 +33,7 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Enkel frekvenstabell for spørsmål med prefix q_29
 #' freq_battery(data = data_02_leder, svy = "TALISEC_LEADER", battery_prefix = "q_29")
 #'
@@ -41,7 +42,7 @@
 #'
 #' # Returner som bred tabell
 #' tabell <- freq_battery(data = data_02_leder, svy = "TALISEC_LEADER", battery_prefix = "q_29", return_data = "tabell")
-
+#' }
 freq_battery <- function(data,
                          svy,
                          battery_prefix,

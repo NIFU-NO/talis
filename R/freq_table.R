@@ -30,6 +30,7 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Frekvenstabell uten gruppering
 #' freq_table(data = data_02_ansatt, svy = "TALISEC_STAFF", variabel = "gender")
 #'
@@ -38,7 +39,7 @@
 #'
 #' # Returner som figur
 #' freq_table(data = data_02_ansatt, svy = "TALISEC_STAFF", variabel = "gender", plot = TRUE)
-
+#' }
 
 freq_table <- function(data,
                        svy,

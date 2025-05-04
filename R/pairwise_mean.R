@@ -23,6 +23,7 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Parvise sammenlikninger av trivsel etter eierform
 #' pairwise_mean(data = data_02_ansatt, svy = "TALISEC_STAFF",
 #'               outcome = "ss2g02", group = "eierform")
@@ -30,6 +31,7 @@
 #' # Som `gt`-tabell med p-justering
 #' pairwise_mean(data = data_02_ansatt, svy = "TALISEC_STAFF",
 #'               outcome = "ss2g02", group = "eierform", p_adjust = "bonferroni", as_gt = TRUE)
+#' }
 pairwise_mean <- function(data, svy, outcome, group, p_adjust = "holm", as_gt = FALSE) {
 
   # Pakkesjekker

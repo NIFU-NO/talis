@@ -28,6 +28,7 @@
 #'
 #' @examples
 #' # Krysstabell med antall
+#' \dontrun{
 #' cross_table(data = data_02_ansatt, svy = "TALISEC_STAFF", row_var = "gender", col_var = "eierform")
 #'
 #' # Krysstabell med prosentvis fordeling og gt-tabell
@@ -37,6 +38,7 @@
 #' # Plottet krysstabell
 #' cross_table(data = data_02_ansatt, svy = "TALISEC_STAFF", row_var = "gender", col_var = "eierform",
 #'             prosent = "kolonne", plot = TRUE)
+#' }
 cross_table <- function(data,
                         svy,
                         row_var,
