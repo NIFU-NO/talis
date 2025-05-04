@@ -1,7 +1,8 @@
 # -*- coding: UTF-8 -*-
-#' Parvise sammenlikninger av gjennomsnitt (survey design)
+#' Parvise sammenlikninger av gjennomsnitt
 #'
-#' Estimerer gjennomsnitt for en kontinuerlig variabel innenfor grupper, og tester parvise forskjeller
+#' Sammenlikner gjennomsnitt for en kontinuerlig variabel mellom alle par av grupper,
+#' med støtte for p-justering og output som `gt`-tabell.
 #'
 #' @importFrom dplyr mutate select
 #' @importFrom gt cols_align cols_label fmt fmt_number gt tab_source_note tab_spanner
@@ -11,24 +12,24 @@
 #' @importFrom tibble tibble
 #' @importFrom utils combn
 #'
-#' @param data Datasettet som skal brukes
-#' @param svy Survey-type: "TALISEC_LEADER" eller "TALISEC_STAFF"
-#' @param outcome Den kontinuerlige variabelen vi sammenlikner (tekst)
-#' @param group Gruppene vi sammenlikner på (faktorvariabel, tekst)
-#' @param p_adjust Metode for p-justering (default: "holm")
-#' @param as_gt Returner som gt-tabell? (default: FALSE)
+#' @param data Datasett på individnivå med replikasjonsvekter.
+#' @param svy Navn på survey-designet som skal brukes, f.eks. "TALISEC_STAFF" eller "TALISEC_LEADER".
+#' @param outcome Kontinuerlig variabel det skal beregnes gjennomsnitt av (streng).
+#' @param group Kategorisk variabel med gruppene som skal sammenliknes (streng).
+#' @param p_adjust Metode for p-justering. Default er "holm". Se ?p.adjust.methods for alternativer.
+#' @param as_gt Logisk. Returner som `gt`-tabell? Default er `FALSE`.
 #'
-#' Gyldige p_adjust-metoder for funksjoner som sammenlikner gjennomsnitt:
-#' \itemize{
-#'   \item "bonferroni" (strengest)
-#'   \item "holm" (anbefalt for parvise tester)
-#'   \item "BH" (Benjamini-Hochberg, FDR)
-#'   \item "fdr" (synonym for "BH")
-#'   \item "none" (ingen justering)
-#' }
-#'
-#' @return Tabell med estimerte forskjeller
+#' @return Tabell med estimert forskjell mellom grupper, med standardfeil, konfidensintervall og p-verdi.
 #' @export
+#'
+#' @examples
+#' # Parvise sammenlikninger av trivsel etter eierform
+#' pairwise_mean(data = data_02_ansatt, svy = "TALISEC_STAFF",
+#'               outcome = "ss2g02", group = "eierform")
+#'
+#' # Som `gt`-tabell med p-justering
+#' pairwise_mean(data = data_02_ansatt, svy = "TALISEC_STAFF",
+#'               outcome = "ss2g02", group = "eierform", p_adjust = "bonferroni", as_gt = TRUE)
 pairwise_mean <- function(data, svy, outcome, group, p_adjust = "holm", as_gt = FALSE) {
 
   # Pakkesjekker

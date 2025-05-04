@@ -15,23 +15,44 @@ freq_battery(
 )
 }
 \arguments{
-\item{data}{Datasettet som skal brukes}
+\item{data}{Datasett med relevante variabler og vektinformasjon.}
 
-\item{svy}{Survey-type: "TALISEC_LEADER" eller "TALISEC_STAFF"}
+\item{svy}{Survey-designet: \code{"TALISEC_LEADER"} eller \code{"TALISEC_STAFF"}.}
 
-\item{battery_prefix}{Prefiks for variablene i batteriet (f.eks. "q_29")}
+\item{battery_prefix}{Felles prefiks for variablene i spørsmålsbatteriet (f.eks. \code{"q_29"}).}
 
-\item{fast}{Bruk rask metode med færre vekter? (default: FALSE)}
+\item{fast}{Bruk raskere metode med færre vekter? (default: \code{FALSE})}
 
-\item{as_gt}{Returner som gt-tabell? (default: FALSE)}
+\item{as_gt}{Returner som \code{gt}-tabell? (default: \code{FALSE})}
 
-\item{plot}{Returner som ggplot? (default: FALSE)}
+\item{plot}{Returner som \code{ggplot2}-figur? (default: \code{FALSE})}
 
-\item{return_data}{Hva skal returneres? "none" (default), "tabell" eller "rrepest"}
+\item{return_data}{Hva skal returneres? \code{"none"} (default), \code{"tabell"} (en bred \code{tibble}), eller \code{"rrepest"} (liste med \code{Rrepest}-resultater per variabel)}
 }
 \value{
-Tabell, plot, tibble eller liste med resultater per variabel
+Én av følgende, avhengig av valg:
+\itemize{
+\item \code{gt}-tabell (hvis \code{as_gt = TRUE})
+\item \code{ggplot}-objekt (hvis \code{plot = TRUE})
+\item bred \code{tibble} med andeler (hvis \code{return_data = "tabell"})
+\item liste med \code{Rrepest}-resultater (hvis \code{return_data = "rrepest"})
+\item usynlig printet tabell (default)
+}
 }
 \description{
-Lager en frekvenstabell for alle variabler som starter med et gitt prefix.
+Lager en samlet frekvenstabell for alle variabler som starter med et gitt prefiks – typisk brukt for batterier av likeformede spørsmål.
+Tabellene lages ved hjelp av \code{Rrepest} og kan returneres som \code{gt}-tabell, \code{ggplot2}-figur eller bred \code{tibble}.
+}
+\details{
+Prefiks hentes vanligvis fra variabelnavn som \code{q_29}, og funksjonen forsøker å hente batterinavn fra variablenes \code{label}.
+}
+\examples{
+# Enkel frekvenstabell for spørsmål med prefix q_29
+freq_battery(data = data_02_leder, svy = "TALISEC_LEADER", battery_prefix = "q_29")
+
+# Returner som figur
+freq_battery(data = data_02_leder, svy = "TALISEC_LEADER", battery_prefix = "q_29", plot = TRUE)
+
+# Returner som bred tabell
+tabell <- freq_battery(data = data_02_leder, svy = "TALISEC_LEADER", battery_prefix = "q_29", return_data = "tabell")
 }

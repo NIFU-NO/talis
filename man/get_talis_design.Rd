@@ -7,13 +7,21 @@
 get_talis_design(data, svy)
 }
 \arguments{
-\item{data}{Datasett som inneholder riktige vektvariabler og replikasjonsvekter}
+\item{data}{Datasett som inneholder vektvariablene \code{staffwgt} eller \code{cntrwgt} samt replikasjonsvekter (\verb{srwgt*} eller \verb{crwgt*}).}
 
-\item{svy}{Survey-type: "TALISEC_STAFF" eller "TALISEC_LEADER"}
+\item{svy}{Survey-type: "TALISEC_STAFF" eller "TALISEC_LEADER". Brukes for å velge riktige vektvariabler.}
 }
 \value{
-Et objekt av klassen svyrep.design
+Et objekt av klassen \code{svyrep.design} fra \code{survey}-pakken. Kan brukes direkte i \code{svyglm()}, \code{svymean()} osv.
 }
 \description{
-Lager et survey design-objekt med replikasjonsvekter for bruk med survey-pakken.
+Lager et \code{svrep.design}-objekt med replikasjonsvekter, tilpasset enten leder- eller ansattdata fra TALIS Starting Strong.
+Brukes internt i andre funksjoner for å lage gyldig surveydesign med riktige vekter.
+}
+\examples{
+# Lag survey-design for ansattdata
+design <- get_talis_design(data = data_02_ansatt, svy = "TALISEC_STAFF")
+
+# Deretter kan du bruke survey-funksjoner:
+# svymean(~ss2g02, design)
 }

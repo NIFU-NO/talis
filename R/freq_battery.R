@@ -1,7 +1,10 @@
 # -*- coding: UTF-8 -*-
 #' Frekvenstabell for spørsmålsbatterier
 #'
-#' Lager en frekvenstabell for alle variabler som starter med et gitt prefix.
+#' Lager en samlet frekvenstabell for alle variabler som starter med et gitt prefiks – typisk brukt for batterier av likeformede spørsmål.
+#' Tabellene lages ved hjelp av `Rrepest` og kan returneres som `gt`-tabell, `ggplot2`-figur eller bred `tibble`.
+#'
+#' Prefiks hentes vanligvis fra variabelnavn som `q_29`, og funksjonen forsøker å hente batterinavn fra variablenes `label`.
 #'
 #' @importFrom Rrepest Rrepest est
 #' @importFrom dplyr distinct left_join mutate rename_with select
@@ -12,16 +15,33 @@
 #' @importFrom stringr str_match str_remove
 #' @importFrom tidyr pivot_longer pivot_wider
 #'
-#' @param data Datasettet som skal brukes
-#' @param svy Survey-type: "TALISEC_LEADER" eller "TALISEC_STAFF"
-#' @param battery_prefix Prefiks for variablene i batteriet (f.eks. "q_29")
-#' @param fast Bruk rask metode med færre vekter? (default: FALSE)
-#' @param as_gt Returner som gt-tabell? (default: FALSE)
-#' @param plot Returner som ggplot? (default: FALSE)
-#' @param return_data Hva skal returneres? "none" (default), "tabell" eller "rrepest"
+#' @param data Datasett med relevante variabler og vektinformasjon.
+#' @param svy Survey-designet: `"TALISEC_LEADER"` eller `"TALISEC_STAFF"`.
+#' @param battery_prefix Felles prefiks for variablene i spørsmålsbatteriet (f.eks. `"q_29"`).
+#' @param fast Bruk raskere metode med færre vekter? (default: `FALSE`)
+#' @param as_gt Returner som `gt`-tabell? (default: `FALSE`)
+#' @param plot Returner som `ggplot2`-figur? (default: `FALSE`)
+#' @param return_data Hva skal returneres? `"none"` (default), `"tabell"` (en bred `tibble`), eller `"rrepest"` (liste med `Rrepest`-resultater per variabel)
 #'
-#' @return Tabell, plot, tibble eller liste med resultater per variabel
+#' @return Én av følgende, avhengig av valg:
+#' - `gt`-tabell (hvis `as_gt = TRUE`)
+#' - `ggplot`-objekt (hvis `plot = TRUE`)
+#' - bred `tibble` med andeler (hvis `return_data = "tabell"`)
+#' - liste med `Rrepest`-resultater (hvis `return_data = "rrepest"`)
+#' - usynlig printet tabell (default)
+#'
 #' @export
+#'
+#' @examples
+#' # Enkel frekvenstabell for spørsmål med prefix q_29
+#' freq_battery(data = data_02_leder, svy = "TALISEC_LEADER", battery_prefix = "q_29")
+#'
+#' # Returner som figur
+#' freq_battery(data = data_02_leder, svy = "TALISEC_LEADER", battery_prefix = "q_29", plot = TRUE)
+#'
+#' # Returner som bred tabell
+#' tabell <- freq_battery(data = data_02_leder, svy = "TALISEC_LEADER", battery_prefix = "q_29", return_data = "tabell")
+
 freq_battery <- function(data,
                          svy,
                          battery_prefix,

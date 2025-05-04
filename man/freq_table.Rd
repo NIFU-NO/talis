@@ -20,33 +20,46 @@ freq_table(
 )
 }
 \arguments{
-\item{data}{Datasettet som skal brukes}
+\item{data}{Datasett på individnivå med replikasjonsvekter.}
 
-\item{svy}{Survey-type: "TALISEC_LEADER" eller "TALISEC_STAFF"}
+\item{svy}{Navn på survey-designet som skal brukes, f.eks. "TALISEC_STAFF" eller "TALISEC_LEADER".}
 
-\item{variabel}{Variabelnavn som skal summeres (som tekst, f.eks. "gender")}
+\item{variabel}{Navn på variabelen som det skal lages frekvenstabell for (streng).}
 
-\item{by}{Grupperingsvariabel (valgfritt, tekst)}
+\item{by}{Valgfri grupperingsvariabel (streng). Lager separate tabeller per gruppe.}
 
-\item{fast}{Bruk rask metode med færre vekter? (default: FALSE)}
+\item{fast}{Logisk. Bruk raskere metode med færre vekter? Default er \code{FALSE}.}
 
-\item{as_gt}{Returner som gt-tabell? (default: FALSE)}
+\item{as_gt}{Logisk. Returner resultat som \code{gt}-tabell? Default er \code{FALSE}.}
 
-\item{plot}{Returner som ggplot? (default: FALSE)}
+\item{plot}{Logisk. Returner resultat som \code{ggplot2}-figur? Default er \code{FALSE}.}
 
-\item{return_data}{Hva slags data skal returneres? "none" (default), "tabell" for formattert resultat, eller "rrepest" for årsresultatene fra Rrepest.}
+\item{return_data}{Hva skal returneres? "none" (default), "tabell" for tabell,
+eller "rrepest" for selve Rrepest-resultatet.}
 
-\item{sort}{Sorter etter andel? (default: FALSE)}
+\item{sort}{Logisk. Hvis \code{TRUE}, sorteres resultatet etter andel.}
 
-\item{ci}{Inkluder konfidensintervall (95 \%) i resultatet? (default: FALSE)}
+\item{ci}{Logisk. Hvis \code{TRUE}, legges det til konfidensintervall (95 \%).}
 
-\item{var_label}{Navn som skal brukes i tabell eller plott i stedet for variabelnavn (valgfritt)}
+\item{var_label}{Egendefinert visningsnavn for \code{variabel} (valgfritt).}
 
-\item{by_label}{Navn som skal brukes i stedet for by-variabelnavn (valgfritt)}
+\item{by_label}{Egendefinert visningsnavn for \code{by} (valgfritt).}
 }
 \value{
-Tabell, plot, tibble eller Rrepest-resultat
+En \code{gt}-tabell, \code{ggplot2}-figur, \code{tibble} eller \code{Rrepest}-objekt, avhengig av valgene.
 }
 \description{
-Lager en frekvenstabell med usikkerhet, med opsjon for tabell, plot eller rådata.
+Lager en frekvenstabell for én variabel, eventuelt gruppert etter en annen.
+Resultatene beregnes med replikasjonsvekter via \code{Rrepest}, og kan vises som tabell,
+\code{gt}-tabell, figur (\code{ggplot2}) eller rådata.
+}
+\examples{
+# Frekvenstabell uten gruppering
+freq_table(data = data_02_ansatt, svy = "TALISEC_STAFF", variabel = "gender")
+
+# Tabell gruppert etter eierskap, med andeler
+freq_table(data = data_02_ansatt, svy = "TALISEC_STAFF", variabel = "gender", by = "eierform")
+
+# Returner som figur
+freq_table(data = data_02_ansatt, svy = "TALISEC_STAFF", variabel = "gender", plot = TRUE)
 }

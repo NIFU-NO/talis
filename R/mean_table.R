@@ -1,7 +1,9 @@
 # -*- coding: UTF-8 -*-
 #' Gjennomsnittstabell med replikasjonsvekter
 #'
-#' Beregner gjennomsnitt og usikkerhet for en variabel, med støtte for grupper, plot, og konfidensintervall.
+#' Lager en tabell med gjennomsnitt og standardfeil, eventuelt gruppert etter en annen variabel.
+#' Resultatene beregnes med replikasjonsvekter via `Rrepest`, og kan vises som vanlig tabell,
+#' `gt`-tabell, figur (`ggplot2`) eller returneres som Rrepest-objekt.
 #'
 #' @importFrom Rrepest Rrepest est
 #' @importFrom dplyr across arrange mutate relocate rename select
@@ -10,21 +12,33 @@
 #' @importFrom stringr str_wrap
 #' @importFrom tidyr pivot_longer pivot_wider separate
 #'
-#' @param data Datasettet som skal brukes
-#' @param svy Survey-type: "TALISEC_LEADER" eller "TALISEC_STAFF"
-#' @param variabel Variabelnavn (tekst, f.eks. "ss2g02")
-#' @param by Grupperingsvariabel (valgfritt, tekst)
-#' @param fast Bruk rask metode med færre vekter? (default: FALSE)
-#' @param as_gt Returner som gt-tabell? (default: FALSE)
-#' @param plot Returner som ggplot? (default: FALSE)
-#' @param return_data Hva skal returneres? "none" (default), "tabell" eller "rrepest"
-#' @param sort Sorter etter gjennomsnitt? (default: FALSE)
-#' @param var_label Egendefinert etikett for variabelnavnet
-#' @param by_label Egendefinert etikett for grupperingsvariabelen
-#' @param ci Inkluder 95 % konfidensintervall? (default: FALSE)
+#' @param data Datasett på individnivå med replikasjonsvekter.
+#' @param svy Navn på survey-designet som skal brukes, f.eks. "TALISEC_STAFF" eller "TALISEC_LEADER".
+#' @param variabel Navn på variabelen det skal beregnes gjennomsnitt for (streng).
+#' @param by Valgfri grupperingsvariabel (streng). Lager separate tabeller per gruppe.
+#' @param fast Logisk. Bruk raskere metode med færre vekter? Default er `FALSE`.
+#' @param as_gt Logisk. Returner resultat som `gt`-tabell? Default er `FALSE`.
+#' @param plot Logisk. Returner resultat som `ggplot2`-figur? Default er `FALSE`.
+#' @param return_data Hva skal returneres? "none" (default), "tabell" eller "rrepest".
+#' @param sort Logisk. Hvis `TRUE`, sorteres resultatet etter gjennomsnitt.
+#' @param var_label Egendefinert visningsnavn for `variabel` (valgfritt).
+#' @param by_label Egendefinert visningsnavn for `by` (valgfritt).
+#' @param ci Logisk. Hvis `TRUE`, legges det til konfidensintervall (95 %).
 #'
-#' @return Tabell, plott, eller tibble
+#' @return En `gt`-tabell, `ggplot2`-figur, `tibble` eller `Rrepest`-objekt, avhengig av valgene.
 #' @export
+#'
+#' @examples
+#' # Gjennomsnitt uten gruppering
+#' mean_table(data = data_02_ansatt, svy = "TALISEC_STAFF", variabel = "ss2g02")
+#'
+#' # Gjennomsnitt etter eierskap, med CI og sortering
+#' mean_table(data = data_02_ansatt, svy = "TALISEC_STAFF", variabel = "ss2g02",
+#'            by = "eierform", sort = TRUE, ci = TRUE)
+#'
+#' # Returner som figur
+#' mean_table(data = data_02_ansatt, svy = "TALISEC_STAFF", variabel = "ss2g02",
+#'            by = "eierform", plot = TRUE)
 mean_table <- function(data,
                        svy,
                        variabel,

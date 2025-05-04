@@ -2,35 +2,36 @@
 % Please edit documentation in R/pairwise_mean.R
 \name{pairwise_mean}
 \alias{pairwise_mean}
-\title{Parvise sammenlikninger av gjennomsnitt (survey design)}
+\title{Parvise sammenlikninger av gjennomsnitt}
 \usage{
 pairwise_mean(data, svy, outcome, group, p_adjust = "holm", as_gt = FALSE)
 }
 \arguments{
-\item{data}{Datasettet som skal brukes}
+\item{data}{Datasett på individnivå med replikasjonsvekter.}
 
-\item{svy}{Survey-type: "TALISEC_LEADER" eller "TALISEC_STAFF"}
+\item{svy}{Navn på survey-designet som skal brukes, f.eks. "TALISEC_STAFF" eller "TALISEC_LEADER".}
 
-\item{outcome}{Den kontinuerlige variabelen vi sammenlikner (tekst)}
+\item{outcome}{Kontinuerlig variabel det skal beregnes gjennomsnitt av (streng).}
 
-\item{group}{Gruppene vi sammenlikner på (faktorvariabel, tekst)}
+\item{group}{Kategorisk variabel med gruppene som skal sammenliknes (streng).}
 
-\item{p_adjust}{Metode for p-justering (default: "holm")}
+\item{p_adjust}{Metode for p-justering. Default er "holm". Se ?p.adjust.methods for alternativer.}
 
-\item{as_gt}{Returner som gt-tabell? (default: FALSE)
-
-Gyldige p_adjust-metoder for funksjoner som sammenlikner gjennomsnitt:
-\itemize{
-\item "bonferroni" (strengest)
-\item "holm" (anbefalt for parvise tester)
-\item "BH" (Benjamini-Hochberg, FDR)
-\item "fdr" (synonym for "BH")
-\item "none" (ingen justering)
-}}
+\item{as_gt}{Logisk. Returner som \code{gt}-tabell? Default er \code{FALSE}.}
 }
 \value{
-Tabell med estimerte forskjeller
+Tabell med estimert forskjell mellom grupper, med standardfeil, konfidensintervall og p-verdi.
 }
 \description{
-Estimerer gjennomsnitt for en kontinuerlig variabel innenfor grupper, og tester parvise forskjeller
+Sammenlikner gjennomsnitt for en kontinuerlig variabel mellom alle par av grupper,
+med støtte for p-justering og output som \code{gt}-tabell.
+}
+\examples{
+# Parvise sammenlikninger av trivsel etter eierform
+pairwise_mean(data = data_02_ansatt, svy = "TALISEC_STAFF",
+              outcome = "ss2g02", group = "eierform")
+
+# Som `gt`-tabell med p-justering
+pairwise_mean(data = data_02_ansatt, svy = "TALISEC_STAFF",
+              outcome = "ss2g02", group = "eierform", p_adjust = "bonferroni", as_gt = TRUE)
 }

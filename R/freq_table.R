@@ -1,7 +1,9 @@
 # -*- coding: UTF-8 -*-
 #' Frekvenstabell med replikasjonsvekter
 #'
-#' Lager en frekvenstabell med usikkerhet, med opsjon for tabell, plot eller rådata.
+#' Lager en frekvenstabell for én variabel, eventuelt gruppert etter en annen.
+#' Resultatene beregnes med replikasjonsvekter via `Rrepest`, og kan vises som tabell,
+#' `gt`-tabell, figur (`ggplot2`) eller rådata.
 #'
 #' @importFrom Rrepest Rrepest est
 #' @importFrom dplyr across arrange mutate rename select
@@ -10,21 +12,33 @@
 #' @importFrom stringr str_wrap
 #' @importFrom tidyr pivot_longer pivot_wider separate
 #'
-#' @param data Datasettet som skal brukes
-#' @param svy Survey-type: "TALISEC_LEADER" eller "TALISEC_STAFF"
-#' @param variabel Variabelnavn som skal summeres (som tekst, f.eks. "gender")
-#' @param by Grupperingsvariabel (valgfritt, tekst)
-#' @param fast Bruk rask metode med færre vekter? (default: FALSE)
-#' @param as_gt Returner som gt-tabell? (default: FALSE)
-#' @param plot Returner som ggplot? (default: FALSE)
-#' @param return_data Hva slags data skal returneres? "none" (default), "tabell" for formattert resultat, eller "rrepest" for årsresultatene fra Rrepest.
-#' @param sort Sorter etter andel? (default: FALSE)
-#' @param ci Inkluder konfidensintervall (95 %) i resultatet? (default: FALSE)
-#' @param var_label Navn som skal brukes i tabell eller plott i stedet for variabelnavn (valgfritt)
-#' @param by_label Navn som skal brukes i stedet for by-variabelnavn (valgfritt)
+#' @param data Datasett på individnivå med replikasjonsvekter.
+#' @param svy Navn på survey-designet som skal brukes, f.eks. "TALISEC_STAFF" eller "TALISEC_LEADER".
+#' @param variabel Navn på variabelen som det skal lages frekvenstabell for (streng).
+#' @param by Valgfri grupperingsvariabel (streng). Lager separate tabeller per gruppe.
+#' @param fast Logisk. Bruk raskere metode med færre vekter? Default er `FALSE`.
+#' @param as_gt Logisk. Returner resultat som `gt`-tabell? Default er `FALSE`.
+#' @param plot Logisk. Returner resultat som `ggplot2`-figur? Default er `FALSE`.
+#' @param return_data Hva skal returneres? "none" (default), "tabell" for tabell,
+#'   eller "rrepest" for selve Rrepest-resultatet.
+#' @param sort Logisk. Hvis `TRUE`, sorteres resultatet etter andel.
+#' @param ci Logisk. Hvis `TRUE`, legges det til konfidensintervall (95 %).
+#' @param var_label Egendefinert visningsnavn for `variabel` (valgfritt).
+#' @param by_label Egendefinert visningsnavn for `by` (valgfritt).
 #'
-#' @return Tabell, plot, tibble eller Rrepest-resultat
+#' @return En `gt`-tabell, `ggplot2`-figur, `tibble` eller `Rrepest`-objekt, avhengig av valgene.
 #' @export
+#'
+#' @examples
+#' # Frekvenstabell uten gruppering
+#' freq_table(data = data_02_ansatt, svy = "TALISEC_STAFF", variabel = "gender")
+#'
+#' # Tabell gruppert etter eierskap, med andeler
+#' freq_table(data = data_02_ansatt, svy = "TALISEC_STAFF", variabel = "gender", by = "eierform")
+#'
+#' # Returner som figur
+#' freq_table(data = data_02_ansatt, svy = "TALISEC_STAFF", variabel = "gender", plot = TRUE)
+
 
 freq_table <- function(data,
                        svy,

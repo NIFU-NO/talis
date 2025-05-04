@@ -20,33 +20,47 @@ mean_table(
 )
 }
 \arguments{
-\item{data}{Datasettet som skal brukes}
+\item{data}{Datasett på individnivå med replikasjonsvekter.}
 
-\item{svy}{Survey-type: "TALISEC_LEADER" eller "TALISEC_STAFF"}
+\item{svy}{Navn på survey-designet som skal brukes, f.eks. "TALISEC_STAFF" eller "TALISEC_LEADER".}
 
-\item{variabel}{Variabelnavn (tekst, f.eks. "ss2g02")}
+\item{variabel}{Navn på variabelen det skal beregnes gjennomsnitt for (streng).}
 
-\item{by}{Grupperingsvariabel (valgfritt, tekst)}
+\item{by}{Valgfri grupperingsvariabel (streng). Lager separate tabeller per gruppe.}
 
-\item{fast}{Bruk rask metode med færre vekter? (default: FALSE)}
+\item{fast}{Logisk. Bruk raskere metode med færre vekter? Default er \code{FALSE}.}
 
-\item{as_gt}{Returner som gt-tabell? (default: FALSE)}
+\item{as_gt}{Logisk. Returner resultat som \code{gt}-tabell? Default er \code{FALSE}.}
 
-\item{plot}{Returner som ggplot? (default: FALSE)}
+\item{plot}{Logisk. Returner resultat som \code{ggplot2}-figur? Default er \code{FALSE}.}
 
-\item{return_data}{Hva skal returneres? "none" (default), "tabell" eller "rrepest"}
+\item{return_data}{Hva skal returneres? "none" (default), "tabell" eller "rrepest".}
 
-\item{sort}{Sorter etter gjennomsnitt? (default: FALSE)}
+\item{sort}{Logisk. Hvis \code{TRUE}, sorteres resultatet etter gjennomsnitt.}
 
-\item{var_label}{Egendefinert etikett for variabelnavnet}
+\item{var_label}{Egendefinert visningsnavn for \code{variabel} (valgfritt).}
 
-\item{by_label}{Egendefinert etikett for grupperingsvariabelen}
+\item{by_label}{Egendefinert visningsnavn for \code{by} (valgfritt).}
 
-\item{ci}{Inkluder 95 \% konfidensintervall? (default: FALSE)}
+\item{ci}{Logisk. Hvis \code{TRUE}, legges det til konfidensintervall (95 \%).}
 }
 \value{
-Tabell, plott, eller tibble
+En \code{gt}-tabell, \code{ggplot2}-figur, \code{tibble} eller \code{Rrepest}-objekt, avhengig av valgene.
 }
 \description{
-Beregner gjennomsnitt og usikkerhet for en variabel, med støtte for grupper, plot, og konfidensintervall.
+Lager en tabell med gjennomsnitt og standardfeil, eventuelt gruppert etter en annen variabel.
+Resultatene beregnes med replikasjonsvekter via \code{Rrepest}, og kan vises som vanlig tabell,
+\code{gt}-tabell, figur (\code{ggplot2}) eller returneres som Rrepest-objekt.
+}
+\examples{
+# Gjennomsnitt uten gruppering
+mean_table(data = data_02_ansatt, svy = "TALISEC_STAFF", variabel = "ss2g02")
+
+# Gjennomsnitt etter eierskap, med CI og sortering
+mean_table(data = data_02_ansatt, svy = "TALISEC_STAFF", variabel = "ss2g02",
+           by = "eierform", sort = TRUE, ci = TRUE)
+
+# Returner som figur
+mean_table(data = data_02_ansatt, svy = "TALISEC_STAFF", variabel = "ss2g02",
+           by = "eierform", plot = TRUE)
 }

@@ -19,31 +19,44 @@ cross_table(
 )
 }
 \arguments{
-\item{data}{Datasettet som skal brukes}
+\item{data}{Datasett med replikasjonsvekter.}
 
-\item{svy}{Survey-type: "TALISEC_LEADER" eller "TALISEC_STAFF"}
+\item{svy}{Navn på survey-designet: "TALISEC_LEADER" eller "TALISEC_STAFF".}
 
-\item{row_var}{Raden i tabellen (tekst)}
+\item{row_var}{Raden i tabellen (streng).}
 
-\item{col_var}{Kolonnen i tabellen (tekst)}
+\item{col_var}{Kolonnen i tabellen (streng).}
 
-\item{prosent}{Type prosent: "nei", "rad", "kolonne", "total" (default: "nei")}
+\item{prosent}{Type prosent: "nei", "rad", "kolonne" eller "total". Default er "nei".}
 
-\item{test}{Inkluder Rao-Scott-justert chi²-test? (default: TRUE)}
+\item{test}{Logisk. Inkluder Rao-Scott-justert chi²-test? Default er \code{TRUE}.}
 
-\item{as_gt}{Returner som gt-tabell? (default: FALSE)}
+\item{as_gt}{Logisk. Returner som \code{gt}-tabell? Default er \code{FALSE}.}
 
-\item{plot}{Returner som ggplot? (default: FALSE)}
+\item{plot}{Logisk. Returner som \code{ggplot2}-figur? Default er \code{FALSE}.}
 
-\item{return_data}{Returner data og ev. testresultat? (TRUE eller FALSE, default: FALSE)}
+\item{return_data}{Logisk. Returner også test og tabell som liste? Default er \code{FALSE}.}
 
-\item{row_label}{Egendefinert etikett for rader (valgfritt)}
+\item{row_label}{Egendefinert visningsnavn for \code{row_var} (valgfritt).}
 
-\item{col_label}{Egendefinert etikett for kolonner (valgfritt)}
+\item{col_label}{Egendefinert visningsnavn for \code{col_var} (valgfritt).}
 }
 \value{
-Tabell, plot eller tibble
+En \code{gt}-tabell, \code{ggplot2}-figur, \code{tibble} eller liste med test og tabell.
 }
 \description{
-Lager en krysstabell (prosent eller antall) med opsjon for test, tabell og plott.
+Lager en krysstabell for to kategoriske variabler, med mulighet for prosentvis fordeling,
+statistisk test og ulike outputformater (tabell, \code{gt} eller \code{ggplot2}).
+}
+\examples{
+# Krysstabell med antall
+cross_table(data = data_02_ansatt, svy = "TALISEC_STAFF", row_var = "gender", col_var = "eierform")
+
+# Krysstabell med prosentvis fordeling og gt-tabell
+cross_table(data = data_02_ansatt, svy = "TALISEC_STAFF", row_var = "gender", col_var = "eierform",
+            prosent = "rad", as_gt = TRUE)
+
+# Plottet krysstabell
+cross_table(data = data_02_ansatt, svy = "TALISEC_STAFF", row_var = "gender", col_var = "eierform",
+            prosent = "kolonne", plot = TRUE)
 }
