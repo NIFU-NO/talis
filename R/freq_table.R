@@ -31,14 +31,26 @@ freq_table <- function(data,
                        var_label = NULL,
                        by_label = NULL) {
 
+  if (!requireNamespace("Rrepest", quietly = TRUE)) stop("Du må installere pakken 'Rrepest'.")
+  if (as_gt && !requireNamespace("gt", quietly = TRUE)) stop("Du må installere pakken 'gt' for å bruke as_gt = TRUE.")
+  if (plot && !requireNamespace("ggplot2", quietly = TRUE)) stop("Du må installere pakken 'ggplot2' for å bruke plot = TRUE.")
+
   return_data <- match.arg(return_data)
 
-  if (!variabel %in% names(data)) stop("Variabel finnes ikke i datasettet.")
-  if (!is.null(by) && !by %in% names(data)) stop("Gruppevariabel finnes ikke i datasettet.")
+  if (!variabel %in% names(data)) stop(glue::glue("Variabelen '{variabel}' finnes ikke i datasettet."))
+  if (!is.null(by) && !by %in% names(data)) stop(glue::glue("Gruppevariabelen '{by}' finnes ikke i datasettet."))
   if (!svy %in% c("TALISEC_STAFF", "TALISEC_LEADER")) stop("Ugyldig survey-type.")
 
-  if (is.null(var_label)) var_label <- attributes(data[[variabel]])$label %||% variabel
-  if (!is.null(by) && is.null(by_label)) by_label <- attributes(data[[by]])$label %||% by
+  var_label <- var_label %||% attr(data[[variabel]], "label") %||% variabel
+  if (!is.null(by)) {
+    by_label <- by_label %||% attr(data[[by]], "label") %||% by
+  }
+
+  # Advarsel hvis flere outputtyper er valgt samtidig
+  n_outputs <- sum(plot, as_gt, return_data != "none")
+  if (n_outputs > 1) {
+    warning("Flere output-alternativer er spesifisert (plot, as_gt, return_data). Bare én vil bli brukt, i prioritert rekkefølge: plot > as_gt > return_data.")
+  }
 
   result <- Rrepest::Rrepest(
     data = data,
@@ -47,6 +59,8 @@ freq_table <- function(data,
     by = by,
     fast = fast
   )
+
+  if (nrow(result) == 0) stop("Ingen resultater fra Rrepest. Sjekk at variabelen har gyldige verdier.")
 
   if (is.null(by)) {
     tabell <- result %>%
@@ -106,8 +120,7 @@ freq_table <- function(data,
     p <- ggplot(plot_data, aes(x = !!sym(x_col), y = `Andel (%)`, fill = !!sym(x_col))) +
       geom_col(show.legend = FALSE) +
       labs(x = x_col, y = "Andel (%)") +
-      theme_minimal() +
-      {
+      theme_minimal() + {
         if (skal_wrappe) scale_x_discrete(labels = function(x) stringr::str_wrap(x, width = 20))
         else scale_x_discrete()
       }
