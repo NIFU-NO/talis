@@ -30,14 +30,37 @@ mean_table <- function(data,
                        by_label = NULL,
                        ci = FALSE) {
 
+  if (!requireNamespace("Rrepest", quietly = TRUE)) stop("Du må installere pakken 'Rrepest'.")
+  if (as_gt && !requireNamespace("gt", quietly = TRUE)) stop("Du må installere pakken 'gt' for å bruke as_gt = TRUE.")
+  if (plot && !requireNamespace("ggplot2", quietly = TRUE)) stop("Du må installere pakken 'ggplot2' for å bruke plot = TRUE.")
+  if (!requireNamespace("stringr", quietly = TRUE)) stop("Du må installere pakken 'stringr'.")
+
   return_data <- match.arg(return_data)
+
+  n_outputs <- sum(plot, as_gt, return_data != "none")
+  if (n_outputs > 1) {
+    warning("Flere output-alternativer er spesifisert. Bare én vil bli brukt: plot > as_gt > return_data.")
+  }
 
   if (!variabel %in% names(data)) stop("Variabel finnes ikke i datasettet.")
   if (!is.null(by) && !by %in% names(data)) stop("Gruppevariabel finnes ikke i datasettet.")
   if (!svy %in% c("TALISEC_STAFF", "TALISEC_LEADER")) stop("Ugyldig survey-type.")
 
-  if (is.null(var_label)) var_label <- attributes(data[[variabel]])$label %||% variabel
-  if (!is.null(by) && is.null(by_label)) by_label <- attributes(data[[by]])$label %||% by
+  if (is.null(var_label)) {
+    var_label <- attr(data[[variabel]], "label")
+    if (is.null(var_label)) {
+      message("Merk: variabelen mangler 'label'-attributt. Bruker variabelnavnet som etikett.")
+      var_label <- variabel
+    }
+  }
+
+  if (!is.null(by) && is.null(by_label)) {
+    by_label <- attr(data[[by]], "label")
+    if (is.null(by_label)) {
+      message("Merk: gruppevariabelen mangler 'label'-attributt. Bruker variabelnavnet som etikett.")
+      by_label <- by
+    }
+  }
 
   result <- Rrepest::Rrepest(
     data = data,
@@ -46,6 +69,8 @@ mean_table <- function(data,
     by = by,
     fast = fast
   )
+
+  if (nrow(result) == 0) stop("Ingen resultater fra Rrepest. Sjekk at variabelen har gyldige verdier.")
 
   if (is.null(by)) {
     tabell <- result %>%
@@ -101,21 +126,21 @@ mean_table <- function(data,
       arrange(Gjennomsnitt) %>%
       mutate(!!x_col := factor(!!sym(x_col), levels = !!sym(x_col)))
 
-    p <- ggplot(plot_data, aes(x = !!sym(x_col), y = Gjennomsnitt)) +
-      geom_col(fill = "steelblue", width = 0.7, show.legend = FALSE) +
-      labs(
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = !!sym(x_col), y = Gjennomsnitt)) +
+      ggplot2::geom_col(fill = "steelblue", width = 0.7, show.legend = FALSE) +
+      ggplot2::labs(
         x = x_col,
         y = stringr::str_wrap(paste("Gjennomsnitt av", var_label), width = 80)
       ) +
-      theme_minimal()
+      ggplot2::theme_minimal()
 
     if (ci && "Nedre grense (95 % CI)" %in% names(plot_data)) {
-      p <- p + geom_errorbar(
+      p <- p + ggplot2::geom_errorbar(
         aes(ymin = `Nedre grense (95 % CI)`, ymax = `Øvre grense (95 % CI)`),
         width = 0.15, linewidth = 0.6, color = "black")
     }
 
-    p <- p + coord_flip()
+    p <- p + ggplot2::coord_flip()
     return(p)
   }
 
