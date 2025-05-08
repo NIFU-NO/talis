@@ -21,20 +21,8 @@
 #'
 #' @return Tabell med estimert forskjell mellom grupper, med standardfeil, konfidensintervall og p-verdi.
 #' @export
-#'
-#' @examples
-#' \dontrun{
-#' # Parvise sammenlikninger av trivsel etter eierform
-#' pairwise_mean(data = data_02_ansatt, svy = "TALISEC_STAFF",
-#'               outcome = "ss2g02", group = "eierform")
-#'
-#' # Som `gt`-tabell med p-justering
-#' pairwise_mean(data = data_02_ansatt, svy = "TALISEC_STAFF",
-#'               outcome = "ss2g02", group = "eierform", p_adjust = "bonferroni", as_gt = TRUE)
-#' }
 pairwise_mean <- function(data, svy, outcome, group, p_adjust = "holm", as_gt = FALSE) {
 
-  # Pakkesjekker
   if (!requireNamespace("survey", quietly = TRUE)) stop("Du må installere pakken 'survey'.")
   if (as_gt && !requireNamespace("gt", quietly = TRUE)) stop("Du må installere pakken 'gt' for å bruke as_gt = TRUE.")
   if (!requireNamespace("dplyr", quietly = TRUE)) stop("Du må installere pakken 'dplyr'.")
@@ -42,15 +30,9 @@ pairwise_mean <- function(data, svy, outcome, group, p_adjust = "holm", as_gt = 
   if (!requireNamespace("purrr", quietly = TRUE)) stop("Du må installere pakken 'purrr'.")
   if (!requireNamespace("stringr", quietly = TRUE)) stop("Du må installere pakken 'stringr'.")
 
-  if (!group %in% names(data) || !outcome %in% names(data)) {
-    stop("Variablene finnes ikke i datasettet.")
-  }
+  if (!group %in% names(data) || !outcome %in% names(data)) stop("Variablene finnes ikke i datasettet.")
+  if (!svy %in% c("TALISEC_STAFF", "TALISEC_LEADER")) stop("Ugyldig survey-type.")
 
-  if (!svy %in% c("TALISEC_STAFF", "TALISEC_LEADER")) {
-    stop("Ugyldig survey-type.")
-  }
-
-  # Design
   rep_col <- if (svy == "TALISEC_STAFF") grep("^srwgt", names(data), value = TRUE) else grep("^crwgt", names(data), value = TRUE)
   weight_var <- if (svy == "TALISEC_STAFF") ~staffwgt else ~cntrwgt
   valid_rep_col <- rep_col[colSums(!is.na(data[rep_col])) > 0]
@@ -69,7 +51,6 @@ pairwise_mean <- function(data, svy, outcome, group, p_adjust = "holm", as_gt = 
     data = data_design
   )
 
-  # Modell
   formula <- as.formula(paste(outcome, "~", group))
   mod <- survey::svyglm(formula, design = design)
 
@@ -77,7 +58,6 @@ pairwise_mean <- function(data, svy, outcome, group, p_adjust = "holm", as_gt = 
   coef_names <- names(coefs)
   mf <- model.frame(mod)
   factor_levels <- levels(mf[[group]])
-
   if (length(factor_levels) < 2) stop("Variabelen group må ha minst to nivåer.")
 
   ref_level <- factor_levels[1]
@@ -123,27 +103,47 @@ pairwise_mean <- function(data, svy, outcome, group, p_adjust = "holm", as_gt = 
       y_label <- outcome
     }
 
-    results <- results %>% dplyr::select(-se, -t)  # Fjern SE og t-verdi fra visning
-    gt_tab <- gt::gt(results) %>%
-      gt::tab_spanner(label = paste0("Gjennomsnitt av ", y_label), columns = c(est, ci_low, ci_high, p, p_adj)) %>%
-      gt::fmt_number(columns = c(est, ci_low, ci_high), decimals = 2) %>%
-      gt::fmt(columns = c(p, p_adj), fns = function(x) {
-        ifelse(x < 0.001, "< .001", formatC(x, digits = 3, format = "f"))
-      }) %>%
-      gt::cols_label(
-        sammenlikning = "Sammenlikning",
-        est = "Estimat",
-        p = "p-verdi",
-        ci_low = "Nedre CI",
-        ci_high = "Øvre CI",
-        p_adj = "Justert p"
-      ) %>%
-      gt::cols_align(align = "left", columns = sammenlikning) %>%
-      gt::cols_align(align = "right", columns = where(is.numeric))
+    results <- results %>% dplyr::select(-se, -t)
 
-    if (p_adjust != "none") {
-      gt_tab <- gt_tab %>% gt::tab_source_note(gt::md(glue::glue("*P-verdier justert med {p_adjust} metode*")))
+    if (p_adjust == "none") {
+      gt_tab <- gt::gt(results) %>%
+        gt::tab_spanner(label = paste0("Gjennomsnitt av ", y_label),
+                        columns = c(est, ci_low, ci_high, p)) %>%
+        gt::fmt_number(columns = c(est, ci_low, ci_high), decimals = 2) %>%
+        gt::fmt(columns = p, fns = function(x) {
+          ifelse(x < 0.001, "< .001", formatC(x, digits = 3, format = "f"))
+        }) %>%
+        gt::cols_label(
+          sammenlikning = "Sammenlikning",
+          est = "Estimat",
+          p = "p-verdi",
+          ci_low = "Nedre CI",
+          ci_high = "Øvre CI"
+        ) %>%
+        gt::cols_align(align = "left", columns = sammenlikning) %>%
+        gt::cols_align(align = "right", columns = where(is.numeric))
+
+    } else {
+      gt_tab <- gt::gt(results) %>%
+        gt::tab_spanner(label = paste0("Gjennomsnitt av ", y_label),
+                        columns = c(est, ci_low, ci_high, p, p_adj)) %>%
+        gt::fmt_number(columns = c(est, ci_low, ci_high), decimals = 2) %>%
+        gt::fmt(columns = c(p, p_adj), fns = function(x) {
+          ifelse(x < 0.001, "< .001", formatC(x, digits = 3, format = "f"))
+        }) %>%
+        gt::cols_label(
+          sammenlikning = "Sammenlikning",
+          est = "Estimat",
+          p = "p-verdi",
+          ci_low = "Nedre CI",
+          ci_high = "Øvre CI",
+          p_adj = "Justert p"
+        ) %>%
+        gt::cols_align(align = "left", columns = sammenlikning) %>%
+        gt::cols_align(align = "right", columns = where(is.numeric)) %>%
+        gt::tab_source_note(gt::md(glue::glue("*P-verdier justert med {p_adjust} metode*")))
     }
+
     return(gt_tab)
   }
 

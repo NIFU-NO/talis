@@ -26,14 +26,3 @@ Tabell med estimert forskjell mellom grupper, med standardfeil, konfidensinterva
 Sammenlikner gjennomsnitt for en kontinuerlig variabel mellom alle par av grupper,
 med støtte for p-justering og output som \code{gt}-tabell.
 }
-\examples{
-\dontrun{
-# Parvise sammenlikninger av trivsel etter eierform
-pairwise_mean(data = data_02_ansatt, svy = "TALISEC_STAFF",
-              outcome = "ss2g02", group = "eierform")
-
-# Som `gt`-tabell med p-justering
-pairwise_mean(data = data_02_ansatt, svy = "TALISEC_STAFF",
-              outcome = "ss2g02", group = "eierform", p_adjust = "bonferroni", as_gt = TRUE)
-}
-}
