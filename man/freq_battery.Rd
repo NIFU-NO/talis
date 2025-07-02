@@ -11,6 +11,9 @@ freq_battery(
   fast = FALSE,
   as_gt = FALSE,
   plot = FALSE,
+  bar_labels = FALSE,
+  decimals = 1,
+  local = "no",
   return_data = c("none", "tabell", "rrepest")
 )
 }
@@ -26,6 +29,12 @@ freq_battery(
 \item{as_gt}{Returner som \code{gt}-tabell? (default: \code{FALSE})}
 
 \item{plot}{Returner som \code{ggplot2}-figur? (default: \code{FALSE})}
+
+\item{bar_labels}{Legg til prosentetiketter i stolpene i figuren? (default: \code{FALSE})}
+
+\item{decimals}{Antall desimaler i figurer og tabeller. Brukes i både \code{ggplot} og \code{gt}. Default: \code{1}.}
+
+\item{local}{Språklig format for tall. \code{"no"} (default) gir norsk tegnsetting (komma som desimal og mellomrom som tusenskillere), \code{"en"} gir engelsk format (punktum som desimal). Brukes i både \code{gt} og \code{ggplot}.}
 
 \item{return_data}{Hva skal returneres? \code{"none"} (default), \code{"tabell"} (en bred \code{tibble}), eller \code{"rrepest"} (liste med \code{Rrepest}-resultater per variabel)}
 }
@@ -48,14 +57,14 @@ Prefiks hentes vanligvis fra variabelnavn som \code{q_29}, og funksjonen forsøk
 }
 \examples{
 \dontrun{
-# Enkel frekvenstabell for spørsmål med prefix q_29
-freq_battery(data = data_02_leder, svy = "TALISEC_LEADER", battery_prefix = "q_29")
+# Enkel frekvenstabell for spørsmål med prefix ss2g15
+freq_battery(data = data_02_ansatt, svy = "TALISEC_STAFF", battery_prefix = "ss2g15")
 
 # Returner som figur
-freq_battery(data = data_02_leder, svy = "TALISEC_LEADER", battery_prefix = "q_29", plot = TRUE)
+freq_battery(data = data_02_ansatt, svy = "TALISEC_STAFF", battery_prefix = "ss2g15", plot = TRUE)
 
 # Returner som bred tabell
-tabell <- freq_battery(data = data_02_leder, svy = "TALISEC_LEADER",
-                       battery_prefix = "q_29", return_data = "tabell")
+tabell <- freq_battery(data = data_02_ansatt, svy = "TALISEC_STAFF",
+                       battery_prefix = "ss2g15", return_data = "tabell")
 }
 }

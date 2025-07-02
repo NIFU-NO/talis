@@ -21,6 +21,9 @@
 #' @param fast Bruk raskere metode med færre vekter? (default: `FALSE`)
 #' @param as_gt Returner som `gt`-tabell? (default: `FALSE`)
 #' @param plot Returner som `ggplot2`-figur? (default: `FALSE`)
+#' @param bar_labels Legg til prosentetiketter i stolpene i figuren? (default: `FALSE`)
+#' @param decimals Antall desimaler i figurer og tabeller. Brukes i både `ggplot` og `gt`. Default: `1`.
+#' @param local Språklig format for tall. `"no"` (default) gir norsk tegnsetting (komma som desimal og mellomrom som tusenskillere), `"en"` gir engelsk format (punktum som desimal). Brukes i både `gt` og `ggplot`.
 #' @param return_data Hva skal returneres? `"none"` (default), `"tabell"` (en bred `tibble`), eller `"rrepest"` (liste med `Rrepest`-resultater per variabel)
 #'
 #' @return Én av følgende, avhengig av valg:
@@ -34,15 +37,15 @@
 #'
 #' @examples
 #' \dontrun{
-#' # Enkel frekvenstabell for spørsmål med prefix q_29
-#' freq_battery(data = data_02_leder, svy = "TALISEC_LEADER", battery_prefix = "q_29")
+#' # Enkel frekvenstabell for spørsmål med prefix ss2g15
+#' freq_battery(data = data_02_ansatt, svy = "TALISEC_STAFF", battery_prefix = "ss2g15")
 #'
 #' # Returner som figur
-#' freq_battery(data = data_02_leder, svy = "TALISEC_LEADER", battery_prefix = "q_29", plot = TRUE)
+#' freq_battery(data = data_02_ansatt, svy = "TALISEC_STAFF", battery_prefix = "ss2g15", plot = TRUE)
 #'
 #' # Returner som bred tabell
-#' tabell <- freq_battery(data = data_02_leder, svy = "TALISEC_LEADER",
-#'                        battery_prefix = "q_29", return_data = "tabell")
+#' tabell <- freq_battery(data = data_02_ansatt, svy = "TALISEC_STAFF",
+#'                        battery_prefix = "ss2g15", return_data = "tabell")
 #' }
 freq_battery <- function(data,
                          svy,
@@ -50,6 +53,9 @@ freq_battery <- function(data,
                          fast = FALSE,
                          as_gt = FALSE,
                          plot = FALSE,
+                         bar_labels = FALSE,
+                         decimals = 1,
+                         local = "no",
                          return_data = c("none", "tabell", "rrepest")) {
 
   if (!requireNamespace("Rrepest", quietly = TRUE)) stop("Du må installere pakken 'Rrepest'.")
@@ -100,31 +106,47 @@ freq_battery <- function(data,
     short_label <- stringr::str_remove(label, ".*/\\s*") %||% label
     n <- sum(!is.na(data[[var]]))
 
+    # Hent originale nivåer (faktor-rekkefølge)
+    original_levels <- levels(data[[var]])
+
+    # Lag tabellen
     result %>%
       select(starts_with("b.")) %>%
       rename_with(~ stringr::str_replace(., paste0("b\\.", var, "\\."), "")) %>%
       pivot_longer(everything(), names_to = "kategori", values_to = "Andel") %>%
-      mutate(variabel = short_label, n = n)
+      mutate(
+        kategori = factor(kategori, levels = original_levels),
+        variabel = short_label,
+        n = n
+      )
   }
 
   tabell <- purrr::map_dfr(battery_vars, process_column) %>%
-    select(variabel, kategori, Andel, n) %>%
-    mutate(Andel = round(Andel, 1))
+    select(variabel, kategori, Andel, n)
+
+  # Etter pivot_wider()
+  kategori_rekkefolge <- levels(data[[battery_vars[1]]])
 
   tabell_wide <- tabell %>%
     select(variabel, kategori, Andel) %>%
-    pivot_wider(names_from = kategori, values_from = Andel) %>%
-    left_join(tabell %>% select(variabel, n) %>% distinct(), by = "variabel")
+    pivot_wider(names_from = kategori, values_from = Andel, names_sort = FALSE) %>%
+    left_join(tabell %>% select(variabel, n) %>% distinct(), by = "variabel") %>%
+    select(
+      variabel,
+      all_of(kategori_rekkefolge[kategori_rekkefolge %in% colnames(.)]),
+      n
+    )
+
 
   if (as_gt) {
     return(
-      gt::gt(tabell_wide, rowname_col = "variabel") %>%
+      gt::gt(tabell_wide, rowname_col = "variabel", locale = local) %>%
         gt::tab_spanner(
           label = battery_label,
           columns = colnames(tabell_wide)[-1]
         ) %>%
         gt::fmt_number(
-          decimals = 1,
+          decimals = decimals,
           drop_trailing_zeros = TRUE
         ) %>%
         gt::tab_style(
@@ -139,15 +161,50 @@ freq_battery <- function(data,
 
   if (plot) {
     tabell$variabel <- forcats::fct_rev(factor(tabell$variabel, levels = unique(tabell_wide$variabel)))
-    p <- ggplot2::ggplot(tabell, ggplot2::aes(x = Andel, y = variabel, fill = kategori)) +
+
+    # Beregn og informer om anbefalt høyde
+    n_spm <- length(unique(tabell$variabel))
+    anbefalt_hoyde <- beregn_figheight(n_spm)
+    message(glue::glue("Tips: Bruk fig.height = {round(anbefalt_hoyde, 1)} i Quarto for bedre lesbarhet"))
+
+    p <- ggplot2::ggplot(tabell, ggplot2::aes(x = Andel, y = variabel, fill = fct_rev(kategori))) +
       ggplot2::geom_col(position = "stack") +
       ggplot2::scale_fill_brewer(palette = "Set2") +
-      ggplot2::labs(x = "Prosent", y = NULL, fill = NULL, title = battery_label) +
+      ggplot2::scale_y_discrete(labels = function(x) stringr::str_wrap(x, width = 50)) +
+      ggplot2::labs(
+        x = ifelse(local == "no", "Prosent", "Percent"),
+        y = NULL,
+        fill = NULL,
+        title = battery_label
+      ) +
       ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE)) +
       ggplot2::theme_minimal() +
       ggplot2::theme(legend.position = "bottom")
+
+    if (bar_labels) {
+      p <- p +
+        ggplot2::geom_text(
+          ggplot2::aes(label = ifelse(Andel >= 2, paste0(
+            format(
+              round(Andel, decimals),
+              nsmall = decimals,
+              drop0trailing = T,
+              big.mark = ifelse(local == "no", " ", ","),
+              decimal.mark = ifelse(local == "no", ",", ".")
+            )
+          ), "")),
+          position = ggplot2::position_stack(vjust = 0.5),
+          color = "black",
+          size = 3
+        )
+    }
+
     return(p)
   }
+
+
+
+
 
   if (return_data == "tabell") return(tabell_wide)
   if (return_data == "rrepest") return(rrepest_list)
