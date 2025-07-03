@@ -18,6 +18,7 @@
 #' @param data Datasett med relevante variabler og vektinformasjon.
 #' @param svy Survey-designet: `"TALISEC_LEADER"` eller `"TALISEC_STAFF"`.
 #' @param battery_prefix Felles prefiks for variablene i spørsmålsbatteriet (f.eks. `"q_29"`).
+#' @param battery_label Overskrift for tabellen eller figuren. Hvis `NULL` (default), forsøker funksjonen å hente navn fra første variabels `label`.
 #' @param fast Bruk raskere metode med færre vekter? (default: `FALSE`)
 #' @param as_gt Returner som `gt`-tabell? (default: `FALSE`)
 #' @param plot Returner som `ggplot2`-figur? (default: `FALSE`)
@@ -50,6 +51,7 @@
 freq_battery <- function(data,
                          svy,
                          battery_prefix,
+                         battery_label = NULL,
                          fast = FALSE,
                          as_gt = FALSE,
                          plot = FALSE,
@@ -72,21 +74,24 @@ freq_battery <- function(data,
   battery_vars <- names(data)[startsWith(names(data), battery_prefix)]
   if (length(battery_vars) == 0) stop("Ingen variabler funnet med angitt prefix.")
 
-  battery_label_raw <- attr(data[[battery_vars[1]]], "label")
+  if (is.null(battery_label)) {
+    battery_label_raw <- attr(data[[battery_vars[1]]], "label")
 
-  if (is.null(battery_label_raw)) {
-    message("Merk: Første variabel i batteriet mangler 'label'-attributt. Prefix-navn brukes som batterinavn.")
-    battery_label <- battery_prefix
-  } else {
-    # Split kun på '/ ' – altså en skråstrek etterfulgt av mellomrom
-    split_label <- stringr::str_split(battery_label_raw, "/ ", simplify = TRUE)
-    n_parts <- length(split_label)
-    battery_label <- dplyr::case_when(
-      n_parts >= 3 ~ split_label[2],
-      n_parts == 2 ~ split_label[1],
-      .default = battery_label_raw
-    )
+    if (is.null(battery_label_raw)) {
+      message("Merk: Første variabel i batteriet mangler 'label'-attributt. Prefix-navn brukes som batterinavn.")
+      battery_label <- battery_prefix
+    } else {
+      # Split kun på '/ ' – altså en skråstrek etterfulgt av mellomrom
+      split_label <- stringr::str_split(battery_label_raw, "/ ", simplify = TRUE)
+      n_parts <- length(split_label)
+      battery_label <- dplyr::case_when(
+        n_parts >= 3 ~ split_label[2],
+        n_parts == 2 ~ split_label[1],
+        .default = battery_label_raw
+      )
+    }
   }
+
 
 
   # Advarsel hvis flere outputtyper er valgt samtidig
