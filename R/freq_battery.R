@@ -73,12 +73,21 @@ freq_battery <- function(data,
   if (length(battery_vars) == 0) stop("Ingen variabler funnet med angitt prefix.")
 
   battery_label_raw <- attr(data[[battery_vars[1]]], "label")
+
   if (is.null(battery_label_raw)) {
     message("Merk: Første variabel i batteriet mangler 'label'-attributt. Prefix-navn brukes som batterinavn.")
-    battery_label_raw <- battery_prefix
+    battery_label <- battery_prefix
+  } else {
+    # Split kun på '/ ' – altså en skråstrek etterfulgt av mellomrom
+    split_label <- stringr::str_split(battery_label_raw, "/ ", simplify = TRUE)
+    n_parts <- length(split_label)
+    battery_label <- dplyr::case_when(
+      n_parts >= 3 ~ split_label[2],
+      n_parts == 2 ~ split_label[1],
+      .default = battery_label_raw
+    )
   }
-  split_label <- stringr::str_match(battery_label_raw, "^(.*?)/")
-  battery_label <- if (!is.na(split_label[1, 2])) split_label[1, 2] else battery_label_raw
+
 
   # Advarsel hvis flere outputtyper er valgt samtidig
   n_outputs <- sum(plot, as_gt, return_data != "none")
