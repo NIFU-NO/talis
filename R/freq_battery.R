@@ -112,7 +112,14 @@ freq_battery <- function(data,
     }
 
     label <- attr(data[[var]], "label") %||% var
-    short_label <- stringr::str_remove(label, ".*/\\s*") %||% label
+
+    split_label <- stringr::str_split(label, "/ ", simplify = TRUE)
+    n_parts <- length(split_label)
+
+    short_label <- dplyr::case_when(
+      n_parts >= 2 ~ split_label[n_parts],  # Bruk siste del etter siste "/ "
+      .default = label
+    )
     n <- sum(!is.na(data[[var]]))
 
     # Hent originale nivåer (faktor-rekkefølge)
