@@ -175,7 +175,7 @@ freq_battery <- function(data,
           locations = gt::cells_body(columns = "n")
         ) %>%
         gt::cols_label(
-          n = gt::html("<i>n</i>")
+          n = gt::md("*n*")
         )
     )
   }
